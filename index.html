@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Focus App – User Journey Flow</title>
+<style>
+  :root{
+    --ink:#0f172a;
+    --muted:#64748b;
+    --bg:#f8fafc;
+    --panel:#ffffff;
+    --purple:#7c3aed;
+    --blue:#2563eb;
+    --cyan:#06b6d4;
+    --green:#10b981;
+    --amber:#f59e0b;
+    --orange:#f97316;
+    --red:#ef4444;
+    --pink:#ec4899;
+    --line:#cbd5e1;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(124,58,237,.12), transparent 28%),
+      radial-gradient(circle at 100% 10%, rgba(6,182,212,.12), transparent 28%),
+      linear-gradient(180deg,#ffffff 0%,#f8fafc 55%,#eef2ff 100%);
+  }
+  .page{max-width:1480px;margin:auto;padding:28px}
+  .hero{
+    background:linear-gradient(110deg,#14b8a6 0%,#2563eb 48%,#7c3aed 100%);
+    color:white;border-radius:28px;padding:28px 34px;box-shadow:0 20px 50px rgba(37,99,235,.2);
+    display:flex;justify-content:space-between;gap:24px;align-items:center;position:relative;overflow:hidden;
+  }
+  .hero:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.12);right:-100px;top:-140px}
+  h1{margin:0;font-size:clamp(34px,5vw,62px);line-height:1;font-weight:900;letter-spacing:-2px}
+  .hero p{font-size:18px;margin:10px 0 0;opacity:.94}
+  .pillrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:9px 13px;border-radius:999px;font-weight:700;font-size:13px}
+  .score-badges{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-end;z-index:2}
+  .badge{min-width:170px;background:#fff;color:var(--ink);padding:16px 18px;border-radius:20px;box-shadow:0 12px 28px rgba(15,23,42,.15)}
+  .badge b{display:block;font-size:14px}.badge span{font-size:12px;color:var(--muted)}
+
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin:22px 4px}
+  .legend span{background:white;border:1px solid #e2e8f0;padding:9px 12px;border-radius:999px;font-size:12px;font-weight:700;box-shadow:0 6px 15px rgba(15,23,42,.05)}
+
+  .section-title{margin:34px 0 12px;font-size:22px;font-weight:900}
+  .flow{position:relative;display:grid;grid-template-columns:repeat(4,minmax(250px,1fr));gap:22px;align-items:stretch}
+  .card{
+    background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:24px;padding:18px;min-height:235px;
+    box-shadow:0 12px 30px rgba(15,23,42,.07);position:relative;overflow:hidden;transition:.25s ease;
+  }
+  .card:hover{transform:translateY(-5px);box-shadow:0 18px 38px rgba(15,23,42,.12)}
+  .card:before{content:"";position:absolute;left:0;top:0;width:100%;height:6px;background:var(--accent)}
+  .num{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:white;background:var(--accent);font-weight:900;box-shadow:0 8px 16px color-mix(in srgb,var(--accent) 30%, transparent)}
+  .head{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .head h3{margin:0;font-size:17px}
+  .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:900}
+  .copy{font-size:13px;line-height:1.55;color:#475569;margin:10px 0}
+  .screen{background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:12px;margin-top:12px}
+  .screen-title{font-size:12px;font-weight:900;margin-bottom:8px}
+  .row{display:flex;gap:8px;align-items:center;margin:7px 0;font-size:12px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .btn{display:block;text-align:center;background:var(--accent);color:white;padding:10px;border-radius:12px;font-weight:800;font-size:12px;margin-top:10px}
+  .mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .mini div{padding:9px;border-radius:12px;background:white;border:1px solid #e2e8f0;font-size:11px;font-weight:700}
+
+  .arrow{display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:900;font-size:28px}
+  .stepwrap{display:contents}
+
+  .decision-card{background:linear-gradient(180deg,#fffdf6 0%,#fff 100%);border:2px solid #fbbf24}
+  .decision-box{width:125px;height:125px;margin:14px auto 4px;transform:rotate(45deg);border-radius:24px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:grid;place-items:center;box-shadow:0 12px 30px rgba(245,158,11,.22)}
+  .decision-box div{transform:rotate(-45deg);text-align:center;font-size:12px;font-weight:900;line-height:1.25}
+  .yesno{display:flex;justify-content:center;gap:8px;margin-top:14px}
+  .yes,.no{padding:7px 12px;border-radius:999px;color:white;font-size:11px;font-weight:900}.yes{background:var(--green)}.no{background:var(--red)}
+
+  .full{grid-column:1/-1}
+  .phase{margin-top:26px;padding:16px 18px;border-radius:18px;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .phase small{font-weight:700;opacity:.75}
+  .phase.p1{background:#ede9fe;color:#5b21b6}.phase.p2{background:#dbeafe;color:#1d4ed8}.phase.p3{background:#dcfce7;color:#047857}.phase.p4{background:#ffedd5;color:#c2410c}
+
+  .branch-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}
+  .branch{padding:16px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0}
+  .branch h4{margin:0 0 8px;font-size:14px}
+  .success{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-color:#86efac}
+  .danger{background:linear-gradient(135deg,#fff1f2,#ffe4e6);border-color:#fda4af}
+
+  .analytics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
+  .metric{background:#fff;border-radius:20px;padding:18px;border:1px solid #e2e8f0;box-shadow:0 10px 24px rgba(15,23,42,.05)}
+  .metric b{display:block;font-size:28px;margin:6px 0;color:var(--accent)}
+  .metric span{font-size:12px;color:var(--muted)}
+
+  .footer{margin:28px 0 10px;color:#64748b;font-size:12px;text-align:center}
+
+  @media(max-width:1100px){.flow{grid-template-columns:repeat(2,minmax(250px,1fr))}.score-badges{display:none}.analytics{grid-template-columns:1fr}.hero{align-items:flex-start}}
+  @media(max-width:700px){.page{padding:14px}.flow{grid-template-columns:1fr}.branch-grid{grid-template-columns:1fr}.hero{padding:24px}.hero p{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div>
+      <h1>User Journey Flow</h1>
+      <p>From the very first second → intentional focus → achievement & rewards.</p>
+      <div class="pillrow">
+        <span class="pill">🎯 Set Goals</span><span class="pill">🛡️ Protect Focus</span><span class="pill">⏱️ Control Social Use</span><span class="pill">🏆 Reward Progress</span>
+      </div>
+    </div>
+    <div class="score-badges">
+      <div class="badge"><b>Academic / Professional</b><span>Personalized journey from onboarding</span></div>
+      <div class="badge"><b>Task-based scoring</b><span>Progress is about execution, not app usage time</span></div>
+      <div class="badge"><b>Intentional social access</b><span>Purpose + timer before entry</span></div>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span>🟣 User Screen</span><span>🟡 Decision</span><span>🟢 Success / Allowed</span><span>🔴 Blocked / Recovery</span><span>🔵 Main Journey</span>
+  </div>
+
+  <div class="phase p1 full">PHASE 1 — First Launch & Setup <small>Make the first experience simple, motivating, and personal.</small></div>
+  <section class="flow">
+    <article class="card" style="--accent:#7c3aed">
+      <div class="head"><div class="num">1</div><div><div class="kicker">First second</div><h3>Welcome / Onboarding</h3></div></div>
+      <div class="copy">User immediately understands the promise: reduce distraction, focus better, and finish meaningful tasks.</div>
+      <div class="screen">
+        <div class="screen-title">👋 Welcome!</div>
+        <div class="row"><span class="dot"></span>Build a more focused day</div>
+        <div class="row"><span class="dot"></span>Track real achievement</div>
+        <span class="btn">Get Started →</span>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#2563eb">
+      <div class="head"><div class="num">2</div><div><div class="kicker">Personalize</div><h3>Choose Goal Path</h3></div></div>
+      <div class="copy">The user chooses the type of journey that fits their current life.</div>
+      <div class="screen">
+        <div class="mini"><div>🎓 Academic Path</div><div>💼 Professional Path</div></div>
+        <span class="btn">Next Step →</span>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#0ea5e9">
+      <div class="head"><div class="num">3</div><div><div class="kicker">Trust & access</div><h3>Permissions Opt-In</h3></div></div>
+      <div class="copy">Explain why access is needed before asking for it, so the user feels in control.</div>
+      <div class="screen">
+        <div class="row"><span class="dot"></span>Usage / app access</div>
+        <div class="row"><span class="dot"></span>Notifications</div>
+        <div class="row"><span class="dot"></span>Overlay / focus interruption</div>
+        <span class="btn">Grant Focus Permission</span>
+      </div>
+    </article>
+
+    <article class="card decision-card" style="--accent:#f59e0b">
+      <div class="head"><div class="num">4</div><div><div class="kicker">System check</div><h3>Permissions Granted?</h3></div></div>
+      <div class="decision-box"><div>⚙️<br/>Granted?</div></div>
+      <div class="yesno"><span class="yes">YES → Dashboard</span><span class="no">NO → Explain</span></div>
+      <div class="copy">If denied, show a clear explainer and let the user try again without losing context.</div>
+    </article>
+  </section>
+
+  <div class="phase p2 full">PHASE 2 — Plan the Day <small>The app shifts from setup to execution.</small></div>
+  <section class="flow">
+    <article class="card" style="--accent:#8b5cf6">
+      <div class="head"><div class="num">5</div><div><div class="kicker">Home</div><h3>Dashboard / Eisenhower Matrix</h3></div></div>
+      <div class="copy">The main home screen organizes priorities and shows the current goal, streak, and progress.</div>
+      <div class="screen">
+        <div class="screen-title">Hi, Alex 👋 — Let’s plan your day</div>
+        <div class="mini">
+          <div style="background:#fee2e2">🔴 Urgent & Important</div>
+          <div style="background:#dcfce7">🟢 Important / Not Urgent</div>
+          <div style="background:#fef3c7">🟡 Urgent / Not Important</div>
+          <div style="background:#e0e7ff">🔵 Eliminate / Drop</div>
+        </div>
+        <span class="btn">＋ Add Task</span>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#f97316">
+      <div class="head"><div class="num">6</div><div><div class="kicker">Action</div><h3>Add Task / Task Detail</h3></div></div>
+      <div class="copy">Every task is linked to a priority quadrant and, ideally, a bigger academic or professional goal.</div>
+      <div class="screen">
+        <div class="row"><span class="dot"></span>Task title</div>
+        <div class="row"><span class="dot"></span>Description / notes</div>
+        <div class="row"><span class="dot"></span>Select quadrant</div>
+        <div class="row"><span class="dot"></span>Deadline / schedule</div>
+        <span class="btn">Save Task</span>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#06b6d4">
+      <div class="head"><div class="num">7</div><div><div class="kicker">Accountability</div><h3>Team Hub</h3></div></div>
+      <div class="copy">Small groups help users stay accountable without turning the group itself into another distraction source.</div>
+      <div class="screen">
+        <div class="screen-title">Study Squad — 5 members</div>
+        <div class="row"><span class="dot"></span>Shared commitments</div>
+        <div class="row"><span class="dot"></span>Scheduled communication windows</div>
+        <div class="row"><span class="dot"></span>Progress encouragement</div>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#ec4899">
+      <div class="head"><div class="num">8</div><div><div class="kicker">Motivation</div><h3>Individual Ranking</h3></div></div>
+      <div class="copy">Weekly ranking is based on task execution and adherence — not how many hours the app stayed open.</div>
+      <div class="screen">
+        <div class="row">🥇 Sarah <b style="margin-left:auto">520 pts</b></div>
+        <div class="row">🥈 You <b style="margin-left:auto">480 pts</b></div>
+        <div class="row">🥉 Mike <b style="margin-left:auto">420 pts</b></div>
+      </div>
+    </article>
+  </section>
+
+  <div class="phase p3 full">PHASE 3 — Social App Interception & Focus <small>The app protects intentional use without completely banning needed apps.</small></div>
+  <section class="flow">
+    <article class="card" style="--accent:#ef4444">
+      <div class="head"><div class="num">9</div><div><div class="kicker">Trigger</div><h3>User Opens a Blacklisted App</h3></div></div>
+      <div class="copy">Example: the user tries to open Instagram while distraction controls are active.</div>
+      <div class="screen">
+        <div class="screen-title">📱 Opening Instagram…</div>
+        <div class="row"><span class="dot"></span>Focus layer intercepts launch</div>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#f59e0b">
+      <div class="head"><div class="num">10</div><div><div class="kicker">Intentionality check</div><h3>Interception Modal</h3></div></div>
+      <div class="copy">Before entering the app, the user states exactly why they are going in and chooses a time limit.</div>
+      <div class="screen">
+        <div class="screen-title">✋ Pause & Reflect</div>
+        <div class="row"><span class="dot"></span>“What are you going to do?”</div>
+        <div class="row"><span class="dot"></span>5 min • 15 min • 30 min</div>
+        <span class="btn">Start Focused Session</span>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#10b981">
+      <div class="head"><div class="num">11</div><div><div class="kicker">Timed access</div><h3>Focused Session Active</h3></div></div>
+      <div class="copy">The selected app is temporarily allowed while a background timer runs.</div>
+      <div class="screen" style="text-align:center;background:linear-gradient(180deg,#052e16,#14532d);color:white;border:none">
+        <div style="font-size:13px;font-weight:900">Focus Mode Active</div>
+        <div style="font-size:42px;font-weight:1000;margin:12px 0">14:59</div>
+        <div style="font-size:11px;opacity:.8">Access allowed for selected duration</div>
+      </div>
+    </article>
+
+    <article class="card decision-card" style="--accent:#f59e0b">
+      <div class="head"><div class="num">12</div><div><div class="kicker">Timer logic</div><h3>Countdown Reached 00:00?</h3></div></div>
+      <div class="decision-box"><div>⏱️<br/>Time over?</div></div>
+      <div class="yesno"><span class="yes">YES → Lock</span><span class="no">NO → Allow</span></div>
+      <div class="copy">If time remains, access continues. When time ends, the lock overlay appears immediately.</div>
+    </article>
+  </section>
+
+  <div class="phase p4 full">PHASE 4 — Completion, Extension, Reward <small>The user chooses to finish, or spends earned points for a short extension.</small></div>
+  <section class="flow">
+    <article class="card" style="--accent:#334155">
+      <div class="head"><div class="num">13</div><div><div class="kicker">Session end</div><h3>Force-Lock Overlay</h3></div></div>
+      <div class="copy">The screen reminds the user of the original intent and asks what should happen next.</div>
+      <div class="screen">
+        <div class="screen-title">🔒 Focus Session Complete</div>
+        <div class="row"><span class="dot"></span>Yes, Goal Completed!</div>
+        <div class="row"><span class="dot"></span>Request 5 More Minutes</div>
+      </div>
+    </article>
+
+    <article class="card" style="--accent:#22c55e">
+      <div class="head"><div class="num">14A</div><div><div class="kicker">Positive path</div><h3>Reward / Success</h3></div></div>
+      <div class="copy">Completing the goal strengthens the habit loop and connects success to achievement rather than screen time.</div>
+      <div class="screen success">
+        <div class="screen-title">🎉 Great Job!</div>
+        <div class="row">✅ Add engagement points</div>
+        <div class="row">✅ Boost individual ranking</div>
+        <div class="row">✅ Update streak / adherence</div>
+      </div>
+    </article>
+
+    <article class="card decision-card" style="--accent:#a855f7">
+      <div class="head"><div class="num">14B</div><div><div class="kicker">Extension logic</div><h3>Request More Time</h3></div></div>
+      <div class="decision-box"><div>🪙<br/>Enough points?</div></div>
+      <div class="yesno"><span class="yes">YES</span><span class="no">NO</span></div>
+    </article>
+
+    <article class="card" style="--accent:#e11d48">
+      <div class="head"><div class="num">15</div><div><div class="kicker">Conditional result</div><h3>Extension Result</h3></div></div>
+      <div class="branch-grid">
+        <div class="branch success"><h4>✅ If points available</h4><div class="copy">Deduct points → grant 5 minutes → continue focus session.</div></div>
+        <div class="branch danger"><h4>❌ If points unavailable</h4><div class="copy">Block access → redirect user back to dashboard.</div></div>
+      </div>
+    </article>
+  </section>
+
+  <h2 class="section-title">What the app learns from the journey</h2>
+  <section class="analytics">
+    <div class="metric" style="--accent:#7c3aed"><span>Metric 01</span><b>Adherence</b><span>Tasks completed against planned priorities and deadlines.</span></div>
+    <div class="metric" style="--accent:#f97316"><span>Metric 02</span><b>Intrusion Index</b><span>How often the user asks for extra social-media time and when distraction peaks.</span></div>
+    <div class="metric" style="--accent:#10b981"><span>Metric 03</span><b>Progress Signals</b><span>Streaks, execution points, ranking changes, and successful focused sessions.</span></div>
+  </section>
+
+  <div class="footer">Focus App User Journey • Colorful HTML Flow • Responsive for laptop, tablet, and mobile</div>
+</div>
+</body>
+</html>
